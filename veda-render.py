@@ -41,12 +41,15 @@ void main()
 }
 """
 
+
 fragment_template = """
 #version 120
 
+#define VEDA_RENDER 1
+
 uniform vec2      resolution;           // viewport resolution (in pixels)
 uniform float     time;           // shader playback time (in seconds)
-uniform vec4      mouse;                // mouse pixel coords
+uniform vec2      mouse;                // mouse pixel coords
 uniform vec4      date;                 // (year, month, day, time in seconds)
 uniform float     samplerate;           // sound sample rate (i.e., 44100)
 uniform sampler2D iChannel0;             // input channel. XX = 2D/Cube
@@ -148,7 +151,7 @@ class RenderingCanvas(app.Canvas):
 
         self.program = gloo.Program(vertex, fragment_template % error_shader)
         self.program["position"] = [(-1, -1), (-1, 1), (1, 1), (-1, -1), (1, 1), (1, -1)]
-        self.program['mouse'] = 0.0, 0.0, 0.0, 0.0
+        self.program['mouse'] = 0.0, 0.0
         self.program['samplerate'] = 44100.0
 
         for i in range(4):
@@ -288,7 +291,7 @@ class RenderingCanvas(app.Canvas):
         if event.is_dragging:
             x, y = event.pos
             px, py = event.press_event.pos
-            imouse = (x, self.size[1] - y, px, self.size[1] - py)
+            imouse = (x, self.size[1] - y)
             self.program['mouse'] = imouse
             if not self._timer:
                 self.update()

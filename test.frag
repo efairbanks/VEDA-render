@@ -1,8 +1,30 @@
+/*
+   {
+   "IMPORTED": {
+   "image1": {
+   "PATH": "./1.jpg",
+   },
+   },
+   "vertexMode": "LINES",
+   "pixelRatio": 4,
+   "audio": true,
+   "midi": true,
+   }
+ */
+
+#ifndef VEDA_RENDER
+precision mediump float;
+uniform float time;
+uniform vec2 resolution;
+uniform vec2 mouse;
+uniform sampler2D backbuffer;
+#endif
+
 #define EPSILON 0.001
 #define PI 3.1415
 
-vec2 uv2p(vec2 uv) {return ((uv.xy*resolution.xy) * 2. - resolution.xy) / min(resolution.x, resolution.y);}
-vec2 p2uv(vec2 p) {return ((p*min(resolution.x, resolution.y))+resolution.xy)/(2.*resolution.xy);}
+vec2 uv2p(vec2 uv) {return ((uv*resolution) * 2. - resolution) / min(resolution.x, resolution.y);}
+vec2 p2uv(vec2 p) {return ((p*min(resolution.x, resolution.y))+resolution)/(2.*resolution);}
 
 vec2 rot(vec2 p, vec2 around, float rad) {
   vec2 o = around;
@@ -114,10 +136,19 @@ void main() {
   vec2 p = uv2p(uv)*1.;
   vec2 oldp = p;
 
-  vec3 origin = vec3(10.);
 
+#ifdef VEDA_RENDER
+  vec3 origin = vec3(10.);
   origin.xz = rot(origin.xz,vec2(0.),time);
   origin.y = sin(time)*5.;
+#else
+  vec3 origin = vec3(0.);
+  origin.y = (mouse.y-0.5)*(4.);
+  origin.xz -= vec2(1.0);
+  origin.xz = rot(origin.xz,vec2(0.),mouse.x*12.);
+  origin = origin*(mouse.y+0.5);
+  origin.xz *= mouse.y*10.;
+#endif
 
   vec3 ray    = normalize(vec3(0.)-origin);
   vec3 right  = normalize(cross(ray,vec3(0.,1.,0.)));
@@ -131,6 +162,6 @@ void main() {
   lout = pow(lout,1.2)*1.5;
   if(t<0.) lout = 0.;
 
-  gl_FragColor = vec4(vec3(lout),1.0);
+  gl_FragColor = vec4(vec3(lout),1.0)/2.;
 }
 
