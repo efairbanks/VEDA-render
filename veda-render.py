@@ -581,6 +581,8 @@ if __name__ == '__main__':
              '-s', args.size,
              '-i', '-',
              '-c:v', 'mpeg4',
+             '-b', '32000k',
+             '-crf', '0',
              '-y', args.output),
             stdin=subprocess.PIPE)
         ffmpeg_pipe = ffmpeg.stdin
